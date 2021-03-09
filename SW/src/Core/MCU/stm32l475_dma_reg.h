@@ -1,5 +1,5 @@
 /**
- * @file stm32l475_flash_reg.h
+ * @file stm32l475_dma_reg.h
  *
  *       Direct memory access controller registers
  *

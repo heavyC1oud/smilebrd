@@ -238,6 +238,7 @@ typedef enum
 
 class rcc_t
 {
+    public:     // REMOVE
     static struct rcc_base_reg
     {
         rcc_regs_t* operator-> ()
@@ -383,7 +384,8 @@ public:
                 freq = rcc_t::get_hsi_freq();
                 break;
             }
-            vco = (freq / RCC_REGS->PLLCFG.pllm);
+
+            vco = (freq / (RCC_REGS->PLLCFG.pllm + 1));
             vco *= RCC_REGS->PLLCFG.plln;
             r = (RCC_REGS->PLLCFG.pllr + 1) * 2;
             sys = vco/r;

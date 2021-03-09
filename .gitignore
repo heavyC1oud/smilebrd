@@ -1,0 +1,9 @@
+Doc/*
+SW/Debug/
+SW/*.dep
+SW/*.ewd
+SW/*.ewp
+SW/*.ewt
+SW/*.eww
+SW/Release/
+SW/Settings/

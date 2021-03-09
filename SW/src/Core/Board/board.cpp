@@ -5,6 +5,7 @@
 #include "stm32l475_flash_cpp.h"
 #include "dataflash.h"
 #include "uart1.h"
+#include "keyboard.h"
 
 #include "board.h"
 
@@ -16,6 +17,7 @@ static void initClock();
 static void initGPIO();
 static void initUART();
 static void initDataflash();
+static void initKeys();
 
 
 
@@ -28,6 +30,7 @@ void initMCU()
     initClock();
     initDataflash();
     initUART();
+    initKeys();
 }
 
 
@@ -42,50 +45,31 @@ void initGPIO()
 
     pin_led.Mode(OUTPUT);
     pin_led.Off();
-
-    // pin_pb12.Mode(OUTPUT);
-    // pin_pb12.Off();
-
-    // pin_pb13.Mode(OUTPUT);
-    // pin_pb13.Off();
-
-    // pin_pb14.Mode(OUTPUT);
-    // pin_pb14.Off();
-
-    // pin_pb15.Mode(OUTPUT);
-    // pin_pb15.Off();
-
-    pin_pc6.Mode(OUTPUT);
-    pin_pc6.Off();
-
-    pin_pc7.Mode(OUTPUT);
-    pin_pc7.Off();
-
-    pin_pc8.Mode(OUTPUT);
-    pin_pc8.Off();
-
-    pin_pc9.Mode(OUTPUT);
-    pin_pc9.Off();
 }
 
 /**
  * @brief System clock initialization
- * system clock 12 MHz
+ * system clock 80 MHz
  */
 static void initClock()
 {
     flash_t::prefetch_en();
-    flash_t::latency(FLASH_LATENCY_0);
-    while(flash_t::get_latency() != FLASH_LATENCY_0);
+    flash_t::latency(FLASH_LATENCY_4);
+    while(flash_t::get_latency() != FLASH_LATENCY_4);
 
     rcc_t::deinit();
 
-    rcc_t::hse_on();
-    while(rcc_t::is_hse_ready() == 0);
+    rcc_t::hsi_on();
+    while(rcc_t::is_hsi_ready() == 0);
 
-    // HSE 12 MHz
-    rcc_t::sysclock_source(RCC_SYSCLOCK_HSE);
-    while(rcc_t::get_sysclock_source() != RCC_SYSCLOCK_HSE);
+    rcc_t::pll_config(RCC_PLL_HSI16, RCC_PLL_M_1, 10, RCC_PLL_P_7, RCC_PLL_Q_2, RCC_PLL_R_2);
+    rcc_t::pll_r_on();
+    rcc_t::pll_on();
+    while(rcc_t::is_pll_ready() == 0);
+
+    // PLL 80 MHz
+    rcc_t::sysclock_source(RCC_SYSCLOCK_PLL);
+    while(rcc_t::get_sysclock_source() != RCC_SYSCLOCK_PLL);
 
     rcc_t::ahbclock_div(RCC_AHBCLOCK_DIV1);
     rcc_t::apb1clock_div(RCC_APBCLOCK_DIV1);
@@ -117,6 +101,17 @@ static void initDataflash()
 
 
 /**
+ * @brief Keyboard initialization
+ */
+void initKeys()
+{
+    keyb.init();
+
+    keyb.calibrate();
+}
+
+
+/**
  * @brief UART data handling
  */
 void handleUARTData()
@@ -129,6 +124,22 @@ void handleUARTData()
         // loopback
         uart.sendData(uart.getBuf(), uart.getRxBufIndex());
         uart.setRxBufIndex(0);
+    }
+}
+
+
+/**
+ * @brief Sensors ahndling
+ */
+void handleSensors()
+{
+    keyb.handle();
+
+    if(keyb.getSensors()) {
+        pin_led.On();
+    }
+    else {
+        pin_led.Off();
     }
 }
 

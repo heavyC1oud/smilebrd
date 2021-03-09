@@ -9,8 +9,8 @@
  *           April 2020 Rev 7 www.st.com
  */
 
-#ifndef STM32L475_DMA_CPP_HHH
-#define STM32L475_DMA_CPP_HHH
+#ifndef STM32L475_DMA_CPP_H
+#define STM32L475_DMA_CPP_H
 
 #include "basis.h"
 #include "stm32l475_rcc_cpp.h"
