@@ -9,7 +9,9 @@
 // keyboard instance
 keyb_t keyb;
 
-
+/**
+ * @brief Keyboard initialization
+ */
 void keyb_t::init()
 {
     this->sensor_value = 0;
@@ -56,6 +58,10 @@ void keyb_t::init()
 /**
  * @brief Poll
  *        poll one sensor from each group
+ *
+ * @param io - touch sensing controller i/o pin
+ * @param group1_val - pointer to variable containing group 1 counter value
+ * @param group4_val - pointer to variable containing group 4 counter value
  */
 void keyb_t::poll(tsc_io_no_t io, uint32_t* group1_val, uint32_t* group4_val)
 {
@@ -72,7 +78,7 @@ void keyb_t::poll(tsc_io_no_t io, uint32_t* group1_val, uint32_t* group4_val)
     tsc_t::start();
 
     // wait end of acquition
-    while((tsc_t::is_group_acq(TSC_GROUP_1) & tsc_t::is_group_acq(TSC_GROUP_4)) == 0);
+    while((tsc_t::is_group_acq(TSC_GROUP_1) && tsc_t::is_group_acq(TSC_GROUP_4)) == 0);
 
     tsc_t::dis_all_sensing();
     tsc_t::dis_all_sampling();
@@ -154,6 +160,8 @@ void keyb_t::handle()
 
 /**
  * @brief Get sensor value
+ *
+ * @return - sensor state, true - action, false - no action
  */
 bool keyb_t::getSensor(keyb_but_num_t num)
 {
@@ -163,6 +171,8 @@ bool keyb_t::getSensor(keyb_but_num_t num)
 
 /**
  * @brief Get all sensor values
+ *
+ * @return - variable with all sensors state
  */
 uint8_t keyb_t::getSensors()
 {

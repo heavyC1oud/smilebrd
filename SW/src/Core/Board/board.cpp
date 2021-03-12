@@ -3,22 +3,26 @@
 
 #include "stm32l475_rcc_cpp.h"
 #include "stm32l475_flash_cpp.h"
+#include "stm32l475_tmr_cpp.h"
 #include "dataflash.h"
 #include "uart1.h"
 #include "keyboard.h"
+#include "i2c1.h"
 
 #include "board.h"
 
+static Tmr<TMR_15> delayTmr;
 
-// sysTick counter, 1 tick = 1 ms
-volatile static uint64_t sysTick = 0;
+
+// delay counter, 1 tick = 1 ms
+volatile static uint64_t delayTick = 0;
 
 static void initClock();
 static void initGPIO();
 static void initUART();
 static void initDataflash();
 static void initKeys();
-
+static void initI2C();
 
 
 /**
@@ -31,6 +35,7 @@ void initMCU()
     initDataflash();
     initUART();
     initKeys();
+    initI2C();
 }
 
 
@@ -45,6 +50,9 @@ void initGPIO()
 
     pin_led.Mode(OUTPUT);
     pin_led.Off();
+
+    pin_touch_sig.Mode(OUTPUT);
+    pin_touch_sig.Off();
 }
 
 /**
@@ -77,8 +85,14 @@ static void initClock()
 
     SystemCoreClockUpdate();
 
-    // enable sysTick to 1 ms period, default interrupt priority = 3
-    SysTick_Config(SystemCoreClock / 1000);
+    // init timer 15 as system delay timer
+    delayTmr.init();
+    // set 40 MHz clock
+    delayTmr.set_freq(SystemCoreClock / 2);
+    // set 1 ms overflow
+    delayTmr.set_arr(SystemCoreClock / 2000);
+    delayTmr.enable_irq();
+    delayTmr.on();
 }
 
 
@@ -110,6 +124,14 @@ void initKeys()
     keyb.calibrate();
 }
 
+/**
+ * @brief Keyboard initialization
+ */
+void initI2C()
+{
+    i2c1.init();
+}
+
 
 /**
  * @brief UART data handling
@@ -127,49 +149,34 @@ void handleUARTData()
     }
 }
 
-
 /**
- * @brief Sensors ahndling
+ * @brief Get delay tick value
  */
-void handleSensors()
+uint64_t getDelayTick()
 {
-    keyb.handle();
-
-    if(keyb.getSensors()) {
-        pin_led.On();
-    }
-    else {
-        pin_led.Off();
-    }
-}
-
-
-/**
- * @brief Get system tick value
- */
-uint64_t getSysTick()
-{
-    return sysTick;
+    return delayTick;
 }
 
 
 /**
  * @brief Set delay in milliseconds
- *        SysTick_Handler used
+ *        TIM15 ISR used
  *
  * @param delay - delay in milliseconds
  */
 void delayMs(uint64_t delay)
 {
-    volatile uint64_t tickStart = getSysTick();
+    volatile uint64_t tickStart = getDelayTick();
 
-    while((getSysTick() - tickStart) < delay);
+    while((getDelayTick() - tickStart) < delay);
 }
 
 /**
- * @brief Systick ISR
+ * @brief TIM15 ISR handler
  */
-extern "C" void SysTick_Handler(void)
+extern "C" void TIM1_BRK_TIM15_IRQHandler(void)
 {
-    sysTick++;
+    delayTmr.set_status(~TIM_SR_UIF);
+
+    delayTick++;
 }

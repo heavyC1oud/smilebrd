@@ -1,4 +1,5 @@
 
+#include "scmRTOS.h"
 #include "board.h"
 
 
@@ -7,12 +8,9 @@ int main()
     initMCU();
 
     pin_led.On();
-    delayMs(500);
+    delayMs(150);
     pin_led.Off();
 
-    while(1) {
-        handleUARTData();
-
-        handleSensors();
-    }
+    // run tasks
+    OS::run();
 }
