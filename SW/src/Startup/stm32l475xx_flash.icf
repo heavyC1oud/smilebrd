@@ -4,14 +4,14 @@
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x08000000;
 /*-Memory Regions-*/
-define symbol __ICFEDIT_region_ROM_start__    = 0x08000000;
-define symbol __ICFEDIT_region_ROM_end__      = 0x080FFFFF;
-define symbol __ICFEDIT_region_RAM_start__    = 0x20000000;
-define symbol __ICFEDIT_region_RAM_end__      = 0x20017FFF;
+define symbol __ICFEDIT_region_ROM_start__ = 0x08000000;
+define symbol __ICFEDIT_region_ROM_end__   = 0x080FFFFF;
+define symbol __ICFEDIT_region_RAM_start__ = 0x20000000;
+define symbol __ICFEDIT_region_RAM_end__   = 0x20017FFF;
 
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = 0x800;
-define symbol __ICFEDIT_size_heap__   = 0x00;
+define symbol __ICFEDIT_size_heap__   = 0x000;
 /**** End of ICF editor section. ###ICF###*/
 
 define symbol __region_SRAM1_start__  = 0x20000000;
@@ -38,4 +38,3 @@ place in RAM_region   { readwrite,
                         block CSTACK, block HEAP };
 place in SRAM1_region { };
 place in SRAM2_region { };
-                        

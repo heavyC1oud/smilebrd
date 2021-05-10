@@ -3,6 +3,7 @@
 #include "board.h"
 #include "stm32l475_pin_cpp.h"
 #include "stm32l475_tsc_cpp.h"
+#include <scmRTOS.h>
 #include "keyboard.h"
 
 
@@ -99,14 +100,14 @@ void keyb_t::poll(tsc_io_no_t io, uint32_t* group1_val, uint32_t* group4_val)
  */
 void keyb_t::calibrate()
 {
-    // calibrate button 1 and 4
-    this->poll(TSC_IO_2, &(this->calibrate_value[KEYB_BUT_1]), &(this->calibrate_value[KEYB_BUT_4]));
+    // calibrate button 3 and 1
+    this->poll(TSC_IO_2, &(this->calibrate_value[KEYB_BUT_3]), &(this->calibrate_value[KEYB_BUT_1]));
 
-    // calibrate button 2 and 5
-    this->poll(TSC_IO_3, &(this->calibrate_value[KEYB_BUT_2]), &(this->calibrate_value[KEYB_BUT_5]));
+    // calibrate button 4 and 2
+    this->poll(TSC_IO_3, &(this->calibrate_value[KEYB_BUT_4]), &(this->calibrate_value[KEYB_BUT_2]));
 
-    // calibrate button 3 and 6
-    this->poll(TSC_IO_4, &(this->calibrate_value[KEYB_BUT_3]), &(this->calibrate_value[KEYB_BUT_6]));
+    // calibrate button 6 and 5
+    this->poll(TSC_IO_4, &(this->calibrate_value[KEYB_BUT_6]), &(this->calibrate_value[KEYB_BUT_5]));
 
     // if calculated calibrate value too small, set minimal calibrate value
     for(uint8_t i = 0; i < 6; i++) {
@@ -129,38 +130,39 @@ void keyb_t::handle()
     uint32_t sensorP1 = 0;
     uint32_t sensorP2 = 0;
 
-    // poll button 1 and 4
+    // poll button 3 and 1
     this->poll(TSC_IO_2, &sensorP1, &sensorP2);
 
-    sensorP1 < (this->calibrate_value[KEYB_BUT_1] - KEYB_SENSING_LIMIT) ? this->sensor_value |= (1 << KEYB_BUT_1) :
-                                                                          this->sensor_value &= ~(1 << KEYB_BUT_1);
+    sensorP1 < (this->calibrate_value[KEYB_BUT_3] - KEYB_SENSING_LIMIT) ? (this->sensor_value |= (1 << KEYB_BUT_3), pin_led_but_3.On()) :
+                                                                          (this->sensor_value &= ~(1 << KEYB_BUT_3), pin_led_but_3.Off());
 
-    sensorP2 < (this->calibrate_value[KEYB_BUT_4] - KEYB_SENSING_LIMIT) ? this->sensor_value |= (1 << KEYB_BUT_4) :
-                                                                          this->sensor_value &= ~(1 << KEYB_BUT_4);
+    sensorP2 < (this->calibrate_value[KEYB_BUT_1] - KEYB_SENSING_LIMIT) ? (this->sensor_value |= (1 << KEYB_BUT_1), pin_led_but_1.On()) :
+                                                                          (this->sensor_value &= ~(1 << KEYB_BUT_1), pin_led_but_1.Off());
 
-    // poll button 2 and 5
+    // poll button 4 and 2
     this->poll(TSC_IO_3, &sensorP1, &sensorP2);
 
-    sensorP1 < (this->calibrate_value[KEYB_BUT_2] - KEYB_SENSING_LIMIT) ? this->sensor_value |= (1 << KEYB_BUT_2) :
-                                                                          this->sensor_value &= ~(1 << KEYB_BUT_2);
+    sensorP1 < (this->calibrate_value[KEYB_BUT_4] - KEYB_SENSING_LIMIT) ? (this->sensor_value |= (1 << KEYB_BUT_4), pin_led_but_4.On()) :
+                                                                          (this->sensor_value &= ~(1 << KEYB_BUT_4), pin_led_but_4.Off());
 
-    sensorP2 < (this->calibrate_value[KEYB_BUT_5] - KEYB_SENSING_LIMIT) ? this->sensor_value |= (1 << KEYB_BUT_5) :
-                                                                          this->sensor_value &= ~(1 << KEYB_BUT_5);
+    sensorP2 < (this->calibrate_value[KEYB_BUT_2] - KEYB_SENSING_LIMIT) ? (this->sensor_value |= (1 << KEYB_BUT_2), pin_led_but_2.On()) :
+                                                                          (this->sensor_value &= ~(1 << KEYB_BUT_2), pin_led_but_2.Off());
 
-    // poll button 3 and 6
+    // poll button 6 and 5
     this->poll(TSC_IO_4, &sensorP1, &sensorP2);
 
-    sensorP1 < (this->calibrate_value[KEYB_BUT_3] - KEYB_SENSING_LIMIT) ? this->sensor_value |= (1 << KEYB_BUT_3) :
-                                                                          this->sensor_value &= ~(1 << KEYB_BUT_3);
+    sensorP1 < (this->calibrate_value[KEYB_BUT_6] - KEYB_SENSING_LIMIT) ? (this->sensor_value |= (1 << KEYB_BUT_6), pin_led_but_6.On()) :
+                                                                          (this->sensor_value &= ~(1 << KEYB_BUT_6), pin_led_but_6.Off());
 
-    sensorP2 < (this->calibrate_value[KEYB_BUT_6] - KEYB_SENSING_LIMIT) ? this->sensor_value |= (1 << KEYB_BUT_6) :
-                                                                          this->sensor_value &= ~(1 << KEYB_BUT_6);
+    sensorP2 < (this->calibrate_value[KEYB_BUT_5] - KEYB_SENSING_LIMIT) ? (this->sensor_value |= (1 << KEYB_BUT_5), pin_led_but_5.On()) :
+                                                                          (this->sensor_value &= ~(1 << KEYB_BUT_5), pin_led_but_5.Off());
 }
 
 
 /**
  * @brief Get sensor value
  *
+ * @param num - button number
  * @return - sensor state, true - action, false - no action
  */
 bool keyb_t::getSensor(keyb_but_num_t num)
@@ -177,6 +179,116 @@ bool keyb_t::getSensor(keyb_but_num_t num)
 uint8_t keyb_t::getSensors()
 {
     return this->sensor_value;
+}
+
+
+/**
+ * @brief Blink button led with fixed time
+ *
+ * @param num - button number
+ */
+void keyb_t::blinkLed(keyb_but_num_t num)
+{
+    static uint32_t holdTime[KEYB_BUT_COUNT] = {0};
+
+    // check button
+    if(this->getSensor(num)) {
+        // check if led already enable
+        if(holdTime[num] != 0) return;
+
+        // set hold time
+        holdTime[num] = OS::get_tick_count() + KEYB_BUT_LED_HOLD_MS;
+
+        // enable led
+        switch(num) {
+        case KEYB_BUT_1:
+            pin_led_but_1.On();
+            break;
+        case KEYB_BUT_2:
+            pin_led_but_2.On();
+            break;
+        case KEYB_BUT_3:
+            pin_led_but_3.On();
+            break;
+        case KEYB_BUT_4:
+            pin_led_but_4.On();
+            break;
+        case KEYB_BUT_5:
+            pin_led_but_5.On();
+            break;
+        case KEYB_BUT_6:
+            pin_led_but_6.On();
+            break;
+        default:
+            break;
+        }
+    }
+    else {
+        // get current time
+        const uint32_t currentTime = OS::get_tick_count();
+
+        // check hold timeout
+        if(holdTime[num] < currentTime) {
+            holdTime[num] = 0;
+
+            // disable led
+            switch(num) {
+            case KEYB_BUT_1:
+                pin_led_but_1.Off();
+                break;
+            case KEYB_BUT_2:
+                pin_led_but_2.Off();
+                break;
+            case KEYB_BUT_3:
+                pin_led_but_3.Off();
+                break;
+            case KEYB_BUT_4:
+                pin_led_but_4.Off();
+                break;
+            case KEYB_BUT_5:
+                pin_led_but_5.Off();
+                break;
+            case KEYB_BUT_6:
+                pin_led_but_6.Off();
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
+
+/**
+ * @brief Blink left eye led with fixed time
+ */
+void keyb_t::blinkLeftLed()
+{
+    static uint32_t holdTime = 0;
+
+    // check buttons
+    if(this->getSensors()) {
+        // check if led already enable
+        if(holdTime != 0) return;
+
+        // set hold time
+        holdTime = OS::get_tick_count() + KEYB_POW_LED_HOLD_MS;
+
+        // enable led
+        pin_out_power_led_red.On();
+    }
+    else {
+        // get current time
+        const uint32_t currentTime = OS::get_tick_count();
+
+        // check hold timeout
+        if(holdTime < currentTime) {
+            holdTime = 0;
+
+            // disable led
+            pin_out_power_led_red.Off();
+        }
+    }
 }
 
 

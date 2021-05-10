@@ -5,7 +5,8 @@
 #include <scmRTOS.h>
 
 // Process types
-typedef OS::process<OS::pr0, 500> ThandleTSC;
+typedef OS::process<OS::pr0, 300> ThandleTSC;
+typedef OS::process<OS::pr1, 300> ThandleGPIO;
 
 
 #endif // _TASKS_H_

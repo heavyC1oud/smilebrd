@@ -16,7 +16,13 @@ typedef enum
     KEYB_BUT_4,
     KEYB_BUT_5,
     KEYB_BUT_6,
+    KEYB_BUT_COUNT,
 } keyb_but_num_t;
+
+typedef enum{
+    KEYB_BUT_LED_HOLD_MS = 20,
+    KEYB_POW_LED_HOLD_MS = 1,
+} keyb_led_hold_t;
 
 
 class keyb_t
@@ -34,6 +40,8 @@ public:
     void handle();
     bool getSensor(keyb_but_num_t num);
     uint8_t getSensors();
+    void blinkLed(keyb_but_num_t num);
+    void blinkLeftLed();
 };
 
 extern keyb_t keyb;

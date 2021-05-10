@@ -4,7 +4,6 @@
 #include "stm32l475_rcc_cpp.h"
 #include "stm32l475_flash_cpp.h"
 #include "stm32l475_tmr_cpp.h"
-#include "dataflash.h"
 #include "uart1.h"
 #include "keyboard.h"
 #include "i2c1.h"
@@ -20,7 +19,6 @@ volatile static uint64_t delayTick = 0;
 static void initClock();
 static void initGPIO();
 static void initUART();
-static void initDataflash();
 static void initKeys();
 static void initI2C();
 
@@ -32,7 +30,6 @@ void initMCU()
 {
     initGPIO();
     initClock();
-    initDataflash();
     initUART();
     initKeys();
     initI2C();
@@ -48,8 +45,38 @@ void initGPIO()
     rcc_t::ahb2_periph_on(RCC_AHB2_PERIPH_GPIOB);
     rcc_t::ahb2_periph_on(RCC_AHB2_PERIPH_GPIOC);
 
-    pin_led.Mode(OUTPUT);
-    pin_led.Off();
+    // button leds
+    pin_led_but_1.Mode(OUTPUT);
+    pin_led_but_1.Off();
+    pin_led_but_2.Mode(OUTPUT);
+    pin_led_but_2.Off();
+    pin_led_but_3.Mode(OUTPUT);
+    pin_led_but_3.Off();
+    pin_led_but_4.Mode(OUTPUT);
+    pin_led_but_4.Off();
+    pin_led_but_5.Mode(OUTPUT);
+    pin_led_but_5.Off();
+    pin_led_but_6.Mode(OUTPUT);
+    pin_led_but_6.Off();
+
+    // server status leds
+    pin_in_server_led.Mode(INPUT);
+    pin_out_server_led_green.Mode(OUTPUT);
+    pin_out_server_led_green.Off();
+    pin_out_server_led_red.Mode(OUTPUT);
+    pin_out_server_led_red.On();
+
+    // power leds
+    pin_out_power_led_green.Mode(OUTPUT);
+    pin_out_power_led_green.On();
+    pin_out_power_led_red.Mode(OUTPUT);
+    pin_out_power_led_red.Off();
+
+    // I2C communication leds
+    pin_out_i2c_led_green.Mode(OUTPUT);
+    pin_out_i2c_led_green.Off();
+    pin_out_i2c_led_red.Mode(OUTPUT);
+    pin_out_i2c_led_red.On();
 
     pin_touch_sig.Mode(OUTPUT);
     pin_touch_sig.Off();
@@ -102,15 +129,6 @@ static void initClock()
 void initUART()
 {
     uart.init();
-}
-
-
-/**
- * @brief Dataflash initialization
- */
-static void initDataflash()
-{
-    dataflash_t::initDataflash();
 }
 
 

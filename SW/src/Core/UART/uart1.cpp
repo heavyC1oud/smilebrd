@@ -1,7 +1,6 @@
 
 #include "basis.h"
 #include "board.h"
-#include "dataflash.h"
 #include "stm32l475_pin_cpp.h"
 #include "stm32l475_uart_cpp.h"
 #include "stm32l475_dma_cpp.h"
@@ -21,9 +20,6 @@ dma_t<DMA_1, CHANNEL_5> dma_uart1_rx;
 // UART instance
 Uart1_t uart(buf_uart1);
 
-// UART baudrate table
-const uint32_t baud[] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
-
 
 void Uart1_t::init()
 {
@@ -38,7 +34,7 @@ void Uart1_t::init()
     pin_uart1_rx.Alternate(ALT_FUNC7);
 
     // UART settings
-    uart1_ll.init(baud[dataflash.uartBaud], UART_PARITY_NONE, UART_DATABIT_8, UART_STOPBIT_1, UART_1_ISR_PRIORITY);
+    uart1_ll.init(115200, UART_PARITY_NONE, UART_DATABIT_8, UART_STOPBIT_1, UART_1_ISR_PRIORITY);
 
     // Tx
     // DMA Tx
@@ -61,7 +57,7 @@ void Uart1_t::init()
     dma_uart1_rx.on();
 
     // config receiver timeout
-    this->setRxDelay(dataflash.uartDelay);
+    this->setRxDelay(20);
     uart1_ll.rto_en();
 
     // enable UART receiver
