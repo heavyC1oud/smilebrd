@@ -9,7 +9,7 @@ Contains [STM32L475RC](https://www.st.com/content/st_com/en/products/microcontro
 A board with touch buttons in the form of smiles, when pressed, the corresponding smile appears on the [goodgame.ru](https://goodgame.ru/)  
 website, in the chat with the largest number of viewers.  
 ***  
-[additional description](https://habr.com/ru/post/552216/)  
-[work demo](https://www.youtube.com/watch?v=jM_IQpgTxcs&ab_channel=VitaliiVitalii)  
-
+[additional description(rus)](https://habr.com/ru/post/552216/)  
+[demo](https://www.youtube.com/watch?v=jM_IQpgTxcs&ab_channel=VitaliiVitalii)  
+***  
 ![smileboard_demo](https://user-images.githubusercontent.com/45851586/117973078-9b4b3280-b334-11eb-8452-8b58788892ce.png)
