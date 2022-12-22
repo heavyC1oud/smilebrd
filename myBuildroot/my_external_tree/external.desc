@@ -1,0 +1,2 @@
+name: USERCONFIGTREE
+desc: because of my "name" Buildroot create variable BR2_EXTERNAL_USERCONFIGTREE_PATH
