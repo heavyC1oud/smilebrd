@@ -1,0 +1,1 @@
+source "${BR2_EXTERNAL_USERCONFIGTREE_PATH}/package/smilebrd_serv/Config.in"
